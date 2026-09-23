@@ -8,12 +8,11 @@
 #           A01802689 Pablo Alejandro Ortiz Montes
 #           A0 Alexander Mejia Tovar
 #----------------------------------------------------------
+from __future__ import annotations
 from typing import cast
 from collections.abc import Iterator, Iterable
 
-
 class OrderedSet[T]:
-
     class Node[N]:
 
         info: N
@@ -89,9 +88,18 @@ class OrderedSet[T]:
             atras.next= adelante
             adelante.prev = atras
 
+    def remove(self, value: T) -> None:
+        current = self.__sentinel.next
+        while (current != self.__sentinel):
+            if current.info == value:
+                current.prev.next = current.next
+                current.next.prev = current.prev
+                del current
+                self.__count -= 1
+                return
+            current = current.next
+        raise KeyError(f"Value {value} not contained in the set.")
 
-    #def remove(self,value: T) -> None:
-   
     def __eq__(self, other: object) -> bool:
         return set(self) == set(other)
 
@@ -103,13 +111,11 @@ class OrderedSet[T]:
         return True
 
     def __lt__(self,other: OrderedSet[T]) -> bool:
-        if self.__len__() == other.__len__():
-            return False
-
         for i in self:
             if i not in other:
                 return False
-        return True
+        return self != other
+    
     def __ge__( self,other: OrderedSet[T]) -> bool:
         for i in other:
             if i not in self:
@@ -118,10 +124,10 @@ class OrderedSet[T]:
 
 
     def __gt__(self, other: OrderedSet[T]) -> bool:
-        if self.__len__() == other.__len__():
-                    return False
-        return other <= self
-
+        for i in other:
+            if i not in self:
+                return False
+        return other != self
 
     def isdisjoint(self,other: OrderedSet[T]) -> bool:
         for i in other:
@@ -153,30 +159,29 @@ class OrderedSet[T]:
         return Newlist
 
     def __xor__(self,other: OrderedSet[T]) -> OrderedSet[T]:
-        ...
+        xor: OrderedSet = OrderedSet()
+        for a in self:
+            if a not in other:
+                xor.add(a)
+        for b in other:
+            if b not in self:
+                xor.add(b)
+        return xor
 
-    
+    def clear(self) -> None:
+        self.__sentinel = OrderedSet.Node(cast(T, None))
+        self.__count = 0
 
+    def pop(self) -> T:
+        last = self.__sentinel.prev
+        if self.__sentinel.prev == None:
+            raise KeyError("Set is empty")
+        self.__sentinel.prev = self.__sentinel.prev.prev
+        self.remove(last.info)
+        return last.info
 
-
-if __name__ == '__main__':
-    a: OrderedSet[int] = OrderedSet([1, 3, 5])
-    b: OrderedSet[int] = OrderedSet([0,3,6,5])
-    print(len(a))
-    # print(a)
-    # a.discard(15)
-    # print(a)
-    # print(a<=b)
-    # print(a.__le__(b))
-    # print(a<b)
-    #print(a.isdisjoint(b))
-    # print(a.__and__(b))
-    # print(a.__or__(b))
-    # print(a.__sub__(b))
-    print(a.__xor__(b))
-
-   
-   
-    
-
-   
+if __name__ == "__main__":
+    a = OrderedSet([4, 8, 15, 16, 23, 42])
+    print(a)
+    a.clear()
+    print(a)
