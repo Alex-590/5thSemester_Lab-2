@@ -3,10 +3,10 @@
 # Implementation of a generic ordered set class and its
 # corresponding operations.
 #
-# Date: 24-Sep-2025
+# Date: 23-Sep-2026
 # Authors:
 #           A01802689 Pablo Alejandro Ortiz Montes
-#           A0 Alexander Mejia Tovar
+#           A01803181 Alexander Mejia Tovar
 #----------------------------------------------------------
 from __future__ import annotations
 from typing import cast
@@ -45,8 +45,7 @@ class OrderedSet[T]:
 
     # Complexity: O(N)
     def add(self, value: T) -> None:
-        if value in self:
-            return
+        if value in self: return
         self.__count += 1
         new_node: OrderedSet.Node[T] = OrderedSet.Node(value)
         new_node.prev = self.__sentinel.prev
@@ -68,26 +67,27 @@ class OrderedSet[T]:
                 return True
         return False
 
+    # Complexity O(N)
     def discard(self,value: T) -> None:
-        if value not in self: 
-         return 
+        if value not in self: return
         current: OrderedSet.Node[T] = self.__sentinel.next
-        adelante:OrderedSet.Node[T]=current.next 
-        atras:OrderedSet[T]= current.prev
+        adelante: OrderedSet.Node[T] = current.next 
+        atras: OrderedSet.Node[T] = current.prev
 
         if current.info == value:
             adelante.prev= atras
             atras.next = adelante
-            return 
+            return
 
         while current.info != value:
             atras = current
             current = adelante
             adelante = adelante.next
         if current.info == value:
-            atras.next= adelante
+            atras.next = adelante
             adelante.prev = atras
 
+    # Complexity O(N)
     def remove(self, value: T) -> None:
         current = self.__sentinel.next
         while (current != self.__sentinel):
@@ -100,49 +100,55 @@ class OrderedSet[T]:
             current = current.next
         raise KeyError(f"Value {value} not contained in the set.")
 
+    # Complexity O(N + M)
     def __eq__(self, other: object) -> bool:
         return set(self) == set(other)
 
-
-    def __le__(self,other: OrderedSet[T]) -> bool:
+    # Complexity O(N * M) where N = len(self) and M = len(other)
+    def __le__(self, other: OrderedSet[T]) -> bool:
         for i in self:
             if i not in other:
                 return False
         return True
 
-    def __lt__(self,other: OrderedSet[T]) -> bool:
+    # Complexity O(N * M) where N = len(self) and M = len(other)
+    def __lt__(self, other: OrderedSet[T]) -> bool:
         for i in self:
             if i not in other:
                 return False
         return self != other
-    
-    def __ge__( self,other: OrderedSet[T]) -> bool:
+
+    # Complexity O(N * M) where N = len(other) and M = len(self)
+    def __ge__(self, other: OrderedSet[T]) -> bool:
         for i in other:
             if i not in self:
                 return False
         return True
 
-
+    # Complexity O(N * M) where N = len(other) and M = len(self)
     def __gt__(self, other: OrderedSet[T]) -> bool:
         for i in other:
             if i not in self:
                 return False
         return other != self
 
-    def isdisjoint(self,other: OrderedSet[T]) -> bool:
+    # Complexity O(N * M) where N = len(other) and M = len(self)
+    def isdisjoint(self, other: OrderedSet[T]) -> bool:
         for i in other:
             if i in self:
                 return False
         return True
 
-    def __and__(self,other: OrderedSet[T]) -> OrderedSet[T]:
+    # Complexity O(N * M) where N = len(self) and M = len(other)
+    def __and__(self, other: OrderedSet[T]) -> OrderedSet[T]:
         Newlist: OrderedSet[T] = OrderedSet()
         for i in self:
             if i in other:
                 Newlist.add(i)
         return Newlist
-        
-    def __or__(self,other: OrderedSet[T]) -> OrderedSet[T]:
+
+    # Complexity O(N + M) where N = len(self) and M = len(other)
+    def __or__(self, other: OrderedSet[T]) -> OrderedSet[T]:
         Newlist: OrderedSet[T] = OrderedSet()
         for i in self:
             Newlist.add(i)
@@ -151,14 +157,16 @@ class OrderedSet[T]:
         return Newlist
   
 
-    def __sub__(self,other: OrderedSet[T]) -> OrderedSet[T]:
+    # Complexity O(N * M) where N = len(self) and M = len(other)
+    def __sub__(self, other: OrderedSet[T]) -> OrderedSet[T]:
         Newlist: OrderedSet[T] = OrderedSet()
         for i in self:
             if i not in other:
                 Newlist.add(i)
         return Newlist
 
-    def __xor__(self,other: OrderedSet[T]) -> OrderedSet[T]:
+    # Complexity(N + M) where N = len(self) and M = len(other)
+    def __xor__(self, other: OrderedSet[T]) -> OrderedSet[T]:
         xor: OrderedSet = OrderedSet()
         for a in self:
             if a not in other:
@@ -168,10 +176,12 @@ class OrderedSet[T]:
                 xor.add(b)
         return xor
 
+    # Complexity O(1)
     def clear(self) -> None:
         self.__sentinel = OrderedSet.Node(cast(T, None))
         self.__count = 0
 
+    # Complexity O(N)
     def pop(self) -> T:
         last = self.__sentinel.prev
         if self.__sentinel.prev == None:
